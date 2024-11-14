@@ -13,36 +13,39 @@ PageController pageController = PageController(initialPage: 0);
 
 class _QuizscreenState extends State<Quizscreen> {
   int correctanswers = 0;
-
-  int? selectedOptionIndex; // Track selected option
-  bool? isAnswerCorrect; // Track whether the selected answer is correct
-  bool isAnswerSelected = false; // Flag to prevent re-selection
+  int? selectedOptionIndex;
+  bool? isAnswerCorrect;
+  bool isAnswerSelected = false;
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 600;
     final paddingSize = isSmallScreen ? 10.0 : 15.0;
+    final fontSize = isSmallScreen ? 23.0 : 30.0;
+    final questionFontSize = isSmallScreen ? 23.0 : 28.0;
+    final optionFontSize = isSmallScreen ? 16.0 : 20.0;
+
     return Scaffold(
       body: Column(
         children: [
           Expanded(
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding: EdgeInsets.symmetric(horizontal: paddingSize),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Hey! ${widget.name}",
-                      style: const TextStyle(
-                          fontSize: 23,
+                      style: TextStyle(
+                          fontSize: fontSize,
                           color: Colors.white,
                           fontWeight: FontWeight.bold),
                     ),
                     Text(
                       "Evaluate your skills with the quiz.",
-                      style: TextStyle(fontSize: 20, color: Colors.grey[200]),
+                      style: TextStyle(fontSize: optionFontSize, color: Colors.grey[200]),
                     ),
                   ],
                 ),
@@ -64,30 +67,24 @@ class _QuizscreenState extends State<Quizscreen> {
                     padding: EdgeInsets.symmetric(horizontal: paddingSize),
                     decoration: const BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(11),
-                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(11)),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Text(
                           quizdata['question'],
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.black,
-                            fontSize: 23,
+                            fontSize: questionFontSize,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),//
                         ...List.generate(
                           quizdata['options'].length,
-                          (optionIndex) {
+                              (optionIndex) {
                             Color borderColor = Colors.black;
                             if (selectedOptionIndex != null) {
                               if (optionIndex == selectedOptionIndex) {
@@ -103,36 +100,33 @@ class _QuizscreenState extends State<Quizscreen> {
 
                             return GestureDetector(
                               onTap: isAnswerSelected
-                                  ? null // Disable further taps after selection
+                                  ? null
                                   : () {
-                                      setState(() {
-                                        selectedOptionIndex = optionIndex;
-                                        isAnswerCorrect =
-                                            optionIndex == correctAnswerIndex;
+                                setState(() {
+                                  selectedOptionIndex = optionIndex;
+                                  isAnswerCorrect =
+                                      optionIndex == correctAnswerIndex;
 
-                                        // Increment correct answers if answer is correct
-                                        if (isAnswerCorrect == true) {
-                                          correctanswers++;
-                                        }
-
-                                        isAnswerSelected =
-                                            true; // Mark answer as selected
-                                      });
-                                    },
+                                  if (isAnswerCorrect == true) {
+                                    correctanswers++;
+                                  }
+                                  isAnswerSelected = true;
+                                });
+                              },
                               child: Container(
                                 margin: const EdgeInsets.only(bottom: 15),
                                 padding: const EdgeInsets.all(15),
                                 decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: borderColor, width: 2),
+                                  border: Border.all(color: borderColor, width: 2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Row(
                                   children: [
                                     Text(
                                       quizdata["options"][optionIndex],
-                                      style:
-                                          const TextStyle(color: Colors.black),
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: optionFontSize),
                                     ),
                                   ],
                                 ),
@@ -140,6 +134,7 @@ class _QuizscreenState extends State<Quizscreen> {
                             );
                           },
                         ),
+                        // Control buttons with responsiveness
                         Container(
                           margin: const EdgeInsets.all(20),
                           child: Row(
@@ -148,159 +143,133 @@ class _QuizscreenState extends State<Quizscreen> {
                               pageIndex == 0
                                   ? const SizedBox()
                                   : ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          selectedOptionIndex = null;
-                                          isAnswerCorrect = null;
-                                          isAnswerSelected =
-                                              false; // Reset the flag
-                                          pageController.previousPage(
-                                              duration: const Duration(
-                                                  milliseconds: 200),
-                                              curve: Curves.linear);
-                                        });
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                        ),
-                                      ),
-                                      child: const Text("Back"),
-                                    ),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedOptionIndex = null;
+                                    isAnswerCorrect = null;
+                                    isAnswerSelected = false;
+                                    pageController.previousPage(
+                                        duration: const Duration(milliseconds: 200),
+                                        curve: Curves.linear);
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                                child: const Text("Back"),
+                              ),
                               pageIndex == data.length - 1
                                   ? ElevatedButton(
-                                      onPressed: () {
-                                        showBottomSheet(
-                                          enableDrag: true,
-                                          context: context,
-                                          builder: (context) {
-                                            return Container(
-                                              height: 500,
-                                              width: double.infinity,
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Stack(
-                                                    alignment: Alignment.center,
-                                                    children: [
-                                                      Container(
-                                                        height: 250,
-                                                        width: 250,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          border: Border
-                                                              .fromBorderSide(
-                                                            BorderSide(
-                                                              width: 2,
-                                                              color: correctanswers <
-                                                                      5
-                                                                  ? Colors.red
-                                                                  : Colors
-                                                                      .green,
-                                                            ),
-                                                          ),
-                                                          shape:
-                                                              BoxShape.circle,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        correctanswers < 5
-                                                            ? "Oops!\n$correctanswers/10"
-                                                            : "Yeah!\n$correctanswers/10",
-                                                        style: const TextStyle(
-                                                          fontSize: 22,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(
-                                                    height: 20,
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        correctanswers = 0;
-                                                        pageController
-                                                            .jumpTo(0);
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                    style: ElevatedButton
-                                                        .styleFrom(
-                                                      foregroundColor:
-                                                          Colors.black,
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5),
+                                onPressed: () {
+                                  showBottomSheet(
+                                    enableDrag: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return Container(
+                                        height: 500,
+                                        width: double.infinity,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                Container(
+                                                  height: 250,
+                                                  width: 250,
+                                                  decoration: BoxDecoration(
+                                                    border: Border.fromBorderSide(
+                                                      BorderSide(
+                                                        width: 2,
+                                                        color: correctanswers < 5
+                                                            ? Colors.red
+                                                            : Colors.green,
                                                       ),
                                                     ),
-                                                    child: const Text(
-                                                      "Start Again",
-                                                      style: TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
+                                                    shape: BoxShape.circle,
                                                   ),
-                                                ],
+                                                ),
+                                                Text(
+                                                  correctanswers < 5
+                                                      ? "Oops!\n$correctanswers/10"
+                                                      : "Yeah!\n$correctanswers/10",
+                                                  style: const TextStyle(
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 20),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  correctanswers = 0;
+                                                  pageController.jumpTo(0);
+                                                  Navigator.pop(context);
+                                                });
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                foregroundColor: Colors.black,
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(5),
+                                                ),
                                               ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
+                                              child: const Text(
+                                                "Start Again",
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      child: const Text("Submit"),
-                                    )
+                                      );
+                                    },
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                                child: const Text("Submit"),
+                              )
                                   : ElevatedButton(
-                                      onPressed: () {
-                                        setState(
-                                          () {
-                                            selectedOptionIndex = null;
-                                            isAnswerCorrect = null;
-                                            isAnswerSelected =
-                                                false; // Reset flag
-                                            pageController.nextPage(
-                                                duration: const Duration(
-                                                    milliseconds: 200),
-                                                curve: Curves.linear);
-                                          },
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                        ),
-                                      ),
-                                      child: const Text("Next"),
-                                    ),
+                                onPressed: () {
+                                  setState(() {
+                                    selectedOptionIndex = null;
+                                    isAnswerCorrect = null;
+                                    isAnswerSelected = false;
+                                    pageController.nextPage(
+                                        duration: const Duration(milliseconds: 200),
+                                        curve: Curves.linear);
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                                child: const Text("Next"),
+                              ),
                             ],
                           ),
-                        ),
+                        )
                       ],
                     ),
                   );
                 },
               ),
             ),
-          )
+          ),
         ],
       ),
     );

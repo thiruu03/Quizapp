@@ -7,21 +7,25 @@ class Introscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextEditingController textEditingController = TextEditingController();
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 600;
+    final paddingSize = isSmallScreen ? 20.0 : 40.0;
+    final fontSize = isSmallScreen ? 28.0 : 36.0;
+    final buttonFontSize = isSmallScreen ? 20.0 : 24.0; //
+
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        padding: EdgeInsets.symmetric(horizontal: paddingSize),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Flutter Quiz App',
               style: TextStyle(
-                fontSize: 28,
+                fontSize: fontSize,
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(20),
               child: TextField(
@@ -34,7 +38,7 @@ class Introscreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                if (textEditingController.text != '') {
+                if (textEditingController.text.isNotEmpty) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -44,9 +48,7 @@ class Introscreen extends StatelessWidget {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Please Enter Your Name"),
-                    ),
+                    const SnackBar(content: Text("Please Enter Your Name")),
                   );
                 }
               },
@@ -57,10 +59,10 @@ class Introscreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(5),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 "Get Started",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: buttonFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
